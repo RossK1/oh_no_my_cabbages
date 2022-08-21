@@ -27,11 +27,17 @@
     <body>
         <div class = "imgbox">
             <img class="center-fit" id="my_img"/>
-            <video controls>
-                <source id="mp4_video" type="video/mp4">
+            <video controls
+                autoplay="true"
+                {% comment %} muted="muted" {% endcomment %}
+                class="center-fit" id="my_video">
+                <source id="video_source">
             </video>
         </div>
         <script>
+            var video_player = document.getElementById('my_video');
+            var video_source = document.getElementById('video_source');
+
             window.onload = function () {
                 load_media()
             }
@@ -40,14 +46,18 @@
                 fetch("{% url 'NextMedia' %}")
                 .then(response => response.json())
                 .then(json => {
-                    console.log("api returned")
-                    console.log("delay = "+json['delay'])
-                    // Update the image
-                    document.getElementById("my_img").src = "data:"+json["mime_type"]+";base64," + json['image'];
-                    // Update the video
-                    document.getElementById("mp4_video").src = "data:"+json["mime_type"]+";base64," + json['video'];
+                    if (json['image']) {
+                        // Update the image
+                        document.getElementById("my_img").src = "data:"+json["mime_type"]+";base64," + json['image'];
+                    } else {
+                        // Update the video
+                        video_player.pause()
+                        video_source.src = "data:"+json["mime_type"]+";base64," + json['video'];
+                        video_player.load();
+                        video_player.play();
+                    }
                     // Call the function again after specified timeout
-                    //setTimeout(function () { load_media(); }, json['delay'])
+                    setTimeout(function () { load_media(); }, json['delay'])
 
                 });
             }

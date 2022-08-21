@@ -7,6 +7,8 @@ from os import listdir
 from os.path import isfile, join, splitext
 import random
 import mimetypes
+import cv2
+
 
 class Index(View):
     def get(self, request):
@@ -19,11 +21,12 @@ class NextMedia(APIView):
         media_folder = "C:/Temp/django_media/"
         files_in_folder = [f for f in listdir(media_folder) if isfile(join(media_folder, f))]
         filename = random.choice(files_in_folder)
+        filepath = join(media_folder, filename)
         _, extension = splitext(filename)
         image_byte_string = None
         video_byte_string = None
         mime_type = mimetypes.guess_type(filename)[0]
-        with open(join(media_folder, filename), "rb") as imageFile:
+        with open(filepath, "rb") as imageFile:
             file_data = base64.b64encode(imageFile.read())
             if extension in (".jpg", ".png"):
                 image_byte_string = file_data
